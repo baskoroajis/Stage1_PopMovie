@@ -16,11 +16,10 @@
         android:background="@color/colorPrimaryDarkBlack"
         >
 
-
     </android.support.v7.widget.RecyclerView>
 
     <ProgressBar
-        android:paddingTop="15dp"
+        android:paddingTop="@dimen/progressbar_top_padding"
         android:layout_gravity="center_horizontal"
         android:id="@+id/pb_loadingMovie"
         style="?android:attr/progressBarStyle"

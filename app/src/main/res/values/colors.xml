@@ -6,4 +6,6 @@
 
     <color name="colorPrimaryBlack">#797979</color>
     <color name="colorPrimaryDarkBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorPaleGreen">#239687</color>
 </resources>

@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -30,13 +33,15 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private ProgressBar mLoadingIndicator;
 
     public static final String DATA_IDENTIFIER = "DATA";
+    private final String SORTBY_IDENTIFIER = "SORTBY";
+
+    private boolean isSortByPopular = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loadingMovie);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movie);
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
         mRecyclerView.setLayoutManager(gridLayoutManager);
@@ -52,18 +57,64 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 int lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition();
 
                 if (!mLoading && lastVisibleItem == totalItem - 1) {
-                    URL movieUrl = NetworkUtils.buildUrl(NetworkUtils.SORT_POPULAR,totalItem);
-                    new FetchMovie().execute(movieUrl);
+                    requestData(totalItem);
                 }
             }
         });
 
-        URL movieUrl = NetworkUtils.buildUrl(NetworkUtils.SORT_POPULAR,0);
-        new FetchMovie().execute(movieUrl);
-        mLoadingIndicator.setVisibility(View.VISIBLE);
-
+        requestData(0);
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menuitem, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        switch (itemId){
+            case R.id.action_sortbypopular:
+                //request sort by popular
+                isSortByPopular = true;
+                mListMovie = null;
+                requestData(0);
+                break;
+            case R.id.action_sortbyrates:
+                //request sort by highest rate
+                isSortByPopular = false;
+                mListMovie = null;
+                requestData(0);
+                break;
+            default:
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClickItem(int index) {
+        Intent i = new Intent(this, DetailActivity.class);
+        i.putExtra(DATA_IDENTIFIER, mListMovie.get(index));
+        startActivity(i);
+    }
+
+    private void requestData(int page){
+        URL movieURL = null;
+        if (isSortByPopular){
+            movieURL = NetworkUtils.buildUrl(NetworkUtils.SORT_POPULAR,page);
+        }
+        else {
+            movieURL = NetworkUtils.buildUrl(NetworkUtils.SORT_TOPRATED,page);
+        }
+        new FetchMovie().execute(movieURL);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
 
     public class FetchMovie extends AsyncTask<URL,  Void, List<Movie>>{
 
@@ -118,11 +169,5 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         }
     }
 
-    @Override
-    public void onClickItem(int index) {
-       // Log.d("item clicked ", "index "+index);
-        Intent i = new Intent(this, DetailActivity.class);
-        i.putExtra(DATA_IDENTIFIER, mListMovie.get(index));
-        startActivity(i);
-    }
+
 }

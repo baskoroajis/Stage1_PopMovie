@@ -4,6 +4,8 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.util.Log;
 
+import com.baskoroaji.stage1.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -16,8 +18,6 @@ import java.util.Scanner;
  */
 
 public final class NetworkUtils {
-    //TODO change this to your own APIKEY
-    private static final String APIKEY = "";
 
     public static final String SORT_POPULAR = "popular";
     public static final String SORT_TOPRATED = "top_rated";
@@ -26,16 +26,12 @@ public final class NetworkUtils {
     private static final String APIKEY_URL = "api_key";
     private static final String PAGE = "page";
 
-
-
-//http://api.themoviedb.org/3/movie/popular?api_key=[YOUR_API_KEY]
-    public static URL buildUrl(String sortMethod, int totalPage){
-        int page = (totalPage + 20) / 20;
+    public static URL buildUrl(String sortMethod, int paging){
+        int page = (paging + 20) / 20;
         Uri buildUri = Uri.parse(BASE_URL).buildUpon()
                 .appendPath(sortMethod)
                 .appendQueryParameter(PAGE,Integer.toString(page))
-                .appendQueryParameter(APIKEY_URL,APIKEY).build();
-
+                .appendQueryParameter(APIKEY_URL, BuildConfig.MOVIE_DB_API_TOKEN).build();
 
         URL url = null;
         try {
